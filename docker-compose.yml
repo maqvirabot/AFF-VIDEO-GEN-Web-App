@@ -7,6 +7,12 @@ services:
     restart: always
     environment:
       - PORT=8000
+      - JWT_SECRET=s3m0g4b3rk4h
+      - GOOGLE_CLIENT_ID=614764542245-opr0cklugg1kj6ngojjv6ghfqjhc3kdr.apps.googleusercontent.com
+      - ADMIN_EMAILS=rinto.fbads@gmail.com
+      - ENCRYPTION_KEY=12345678901234567890123456789012
+      - CLOUDINARY_CLOUD_NAME=du1zvoone
+      - CLOUDINARY_UPLOAD_PRESET=ml_default
     volumes:
       - ./backend_data:/app/data
 
