@@ -4,6 +4,8 @@
 }
 
 affgen.biz.id {
+    # TLS Configuration
+    tls contact@affgen.biz.id
     # Frontend (Next.js)
     handle /_next* {
         reverse_proxy frontend:3000
