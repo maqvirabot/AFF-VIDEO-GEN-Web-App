@@ -15,6 +15,7 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: 614764542245-opr0cklugg1kj6ngojjv6ghfqjhc3kdr.apps.googleusercontent.com
     container_name: web_aff_gen_frontend
     restart: always
     environment:
