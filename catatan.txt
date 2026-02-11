@@ -1,0 +1,54 @@
+76ce49555ffa872f423896cd16a0f681
+
+du1zvoone
+ml_default
+
+
+Sajadah Kubah Premium
+
+Sajadah Kubah Tebal Premium Motif Cantik Lembut Dan Elegant  Pas Untuk Sholat Tarawih di bulan Ramadhan
+
+
+# Update repository
+sudo apt update && sudo apt upgrade -y
+# Install Docker
+sudo apt install docker.io docker-compose-plugin -y
+# Start & Enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+# Cek apakah docker sudah jalan
+docker --version
+docker compose versionsudo 
+
+
+# Buat file swap 2GB
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Buat permanen
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+
+mkdir -p /var/www
+cd /var/www
+
+
+https://github.com/maqvirabot/AFF-VIDEO-GEN-Web-App.git
+
+
+
+
+
+
+ssh -i "C:\Users\Melesat Ghani\Downloads\1234567.pem" maqvira@103.196.155.135
+
+
+C:\Users\Melesat Ghani\
+
+
+
+git config --global user.name "maqvirabot"
+git config --global user.email "rinto.fbads@gmail.com"
+

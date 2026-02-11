@@ -10,6 +10,7 @@ RUN npm ci
 COPY . .
 
 # Build
+ARG NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production image

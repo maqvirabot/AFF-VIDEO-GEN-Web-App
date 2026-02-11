@@ -1,9 +1,9 @@
 {
     # Global options
-    email your-email@example.com
+    email contact@affgen.biz.id
 }
 
-your-domain.biz.id {
+affgen.biz.id {
     # Frontend (Next.js)
     handle /_next* {
         reverse_proxy frontend:3000
