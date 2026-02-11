@@ -1,0 +1,30 @@
+# Environment Variables (Secrets)
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env.local
+
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+.venv/
+env/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build Output
+.next/
+dist/
+build/
+coverage/
+
+# IDEs
+.vscode/
+.idea/
+
+# Docker
+docker-compose.override.yml

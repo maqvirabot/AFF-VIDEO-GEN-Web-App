@@ -1,0 +1,26 @@
+{
+    # Global options
+    email your-email@example.com
+}
+
+your-domain.biz.id {
+    # Frontend (Next.js)
+    handle /_next* {
+        reverse_proxy frontend:3000
+    }
+    
+    # Backend API
+    handle /api* {
+        # Strip /api prefix if backend expects paths without it, 
+        # BUT based on backend/main.py, it seems standard FastAPI.
+        # Often FastAPI mounts on root. If frontend calls /api/upload, 
+        # and backend has /upload, we need to rewrite.
+        uri strip_prefix /api
+        reverse_proxy backend:8000
+    }
+
+    # Serve frontend for all other requests
+    handle {
+        reverse_proxy frontend:3000
+    }
+}

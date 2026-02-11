@@ -1,0 +1,223 @@
+================================================================================
+DOKUMENTASI FLOW APLIKASI: AFF VIDEO GEN (WEB APP VERSION)
+================================================================================
+
+# Dokumentasi Flow Aplikasi: Aff Video Gen (Web App Version)
+
+Dokumentasi ini menjelaskan alur kerja aplikasi **Aff Video Gen** saat ini dan bagaimana alurnya akan diadaptasi ke versi **Web Application**.
+
+## 1. Overview Aplikasi
+**Aff Video Gen** adalah tool automasi untuk membuat video pendek (Shorts/Reels/TikTok) berbasis produk affiliate menggunakan AI Video Generator (Sora 2 via Kie.ai).
+
+**Core Features:**
+- **Product Input:** Nama produk, keunggulan, gambar produk.
+- **AI Prompting:** Template otomatis berdasarkan gaya (Review, Unboxing, dll) dan persona (Wanita Indo, Hijabers, dll).
+- **Generation:** Mengirim task ke API Kie.ai dan menunggu hasil.
+- **Delivery:** Video otomatis diunduh.
+
+---
+
+## 2. User Flow (Alur Pengguna)
+
+### A. Konfigurasi Awal (Setup)
+User mengatur konfigurasi global yang jarang berubah.
+
+**Desktop (Saat ini):** 
+- Input API Key (Kie.ai & Cloudinary) di Sidebar.
+- Tersimpan di `.env` lokal.
+
+**Web App (Rencana):**
+- **Halaman Settings/Profile:** User menginput API Key mereka sendiri.
+- **Storage:** Disimpan di Browser (LocalStorage) atau Database (terenkripsi) jika ada sistem akun.
+- **Validasi:** Cek saldo credit saat key dimasukkan.
+
+### B. Input Data Kreatif (Main Workflow)
+Langkah-langkah user dalam membuat video.
+
+1.  **Upload Gambar Produk**
+    *   *Web Action:* User drag & drop gambar ke area upload.
+    *   *Process:* Gambar diupload ke Cloudinary (via Backend proxy atau Direct Upload signed). URL gambar disimpan sementara.
+2.  **Detail Produk**
+    *   *Input:* Nama Produk (misal: "Sepatu Nike"), Keunggulan (misal: "Ringan buat lari").
+    *   *Input:* Filename Prefix (opsional).
+3.  **Visual Settings**
+    *   *Style:* Pilih gaya video (Unboxing, Review, Tutorial, dll).
+    *   *Persona:* Pilih model (Wanita Indo, Pria Indo, Hijabers, atau Produk Saja).
+    *   *Aspect Ratio:* 9:16 (Portrait) atau 16:9 (Landscape).
+    *   *Duration:* 10s atau 15s.
+4.  **Generasi (Batching)**
+    *   *Input:* Slider jumlah video (1-5).
+    *   *Action:* Klik tombol "GENERATE VIDEO".
+
+### C. Proses Generasi (Waiting Phase)
+Apa yang terjadi setelah tombol diklik.
+
+1.  **Validasi:** Cek kuota API dan kelengkapan data.
+2.  **Prompt Building (Backend):** 
+    *   Sistem menggabungkan Template + Persona + Data Produk menjadi Prompt Bahasa Inggris.
+    *   *Spintax:* Randomisasi kata-kata agar setiap video unik (misal: "Halo" vs "Hai").
+3.  **Submission:**
+    *   Request dikirim ke Kie.ai (`createTask`).
+    *   User melihat status "Queued" -> "Processing".
+4.  **Polling:**
+    *   Web App melakukan polling status setiap 3-5 detik ke Backend/API.
+    *   Progress bar bergerak.
+
+### D. Hasil & Unduhan (Final Phase)
+1.  **Preview:** Video yang selesai muncul thumbnail/playernya.
+2.  **Download:**
+    *   **Auto-download:** (Browser mungkin memblokir ini), lebih baik sediakan tombol "Download All" atau auto-save ke Cloud Storage user.
+    *   **Manual Download:** Tombol download per video.
+
+---
+
+## 3. Technical Flow (Arsitektur Web)
+
+Berikut adalah diagram alur data untuk versi Web App.
+
+```mermaid
+sequenceDiagram
+    participant User as User (Browser)
+    participant FE as Frontend (Next.js)
+    participant BE as Backend (Python/FastAPI)
+    participant Cloud as Cloudinary
+    participant AI as Kie.ai API
+
+    %% 1. Upload Phase
+    User->>FE: Upload Image
+    FE->>BE: POST /api/upload
+    BE->>Cloud: Upload Image
+    Cloud-->>BE: Return Image URL
+    BE-->>FE: Return Image URL
+
+    %% 2. Generation Phase
+    User->>FE: Click Generate (Data Produk + Config)
+    FE->>BE: POST /api/generate-task
+    
+    loop For Each Video in Batch
+        BE->>BE: Build Prompt (Prompt_Gen + Spintax)
+        BE->>AI: POST /jobs/createTask (Prompt, ImgURL)
+        AI-->>BE: Return TaskID
+    end
+    BE-->>FE: Return List [TaskIDs]
+
+    %% 3. Monitoring Phase
+    loop Every 5 Seconds
+        FE->>BE: GET /api/status?ids=[TaskIDs]
+        BE->>AI: GET /jobs/recordInfo (for each)
+        AI-->>BE: Return Status & VideoURL
+        BE-->>FE: Update Progress Bar
+    end
+
+    %% 4. Completion
+    FE->>User: Show Video Player & Download Button
+```
+
+---
+
+## 4. Perbedaan Kunci (Desktop vs Web)
+
+| Fitur | Desktop App (Current) | Web App (Target) |
+| :--- | :--- | :--- |
+| **Storage** | Lokal (Folder Harddisk) | Cloud / Browser Download |
+| **API Keys** | .env File | LocalStorage / Database User |
+| **Processing** | Threading Python Lokal | Async Task Queue (Celery/RQ) di Backend |
+| **Download** | Langsung ke Folder | Download via Browser (Blob) |
+| **Cost** | User pakai resource PC sendiri | Server menanggung beban request (perlu spek server) |
+
+## 5. Struktur Data (State)
+
+Data yang perlu dikelola di Frontend (State Management):
+- `config`: { apiKey, cloudName, cloudPreset }
+- `form`: { productName, highlight, style, persona, ratio, duration }
+- `queue`: Array of Objects:
+  - `id`: Task ID
+  - `status`: pending | processing | completed | failed
+  - `progress`: 0-100%
+  - `resultUrl`: URL Video final
+
+
+================================================================================
+RENCANA MIGRASI TEKNIS: AFF VIDEO GEN
+================================================================================
+
+# Web App Migration Plan: Aff Video Gen
+
+Dokumen ini berisi rencana teknis untuk mengubah aplikasi Desktop Aff Video Gen menjadi Web Application modern.
+
+## Tech Stack Recommendation
+*   **Frontend:** Next.js (React) + Tailwind CSS (shadcn/ui) untuk tampilan premium & responsif.
+*   **Backend:** Python FastAPI (untuk mempertahankan logika `core` yang sudah ada).
+*   **Database:** Tidak wajib untuk MVP (bisa pakai LocalStorage di browser), atau SQLite jika butuh history.
+
+---
+
+## Phase 1: Backend API Development (Python)
+Memindahkan logika dari `core/` menjadi API Service yang bisa diakses Web.
+
+### 1.1 Setup Project API
+- [ ] Inisialisasi Project FastAPI.
+- [ ] Copy folder `core/` (api_client, image_host, prompt_gen) ke struktur baru.
+
+### 1.2 Create Endpoints
+- [ ] `POST /generate-prompt`: Endpoint untuk preview prompt (menerima input user, return string prompt).
+- [ ] `POST /upload-image`: Endpoint proxy ke Cloudinary (atau generate signed signature agar frontend bisa upload langsung - *lebih efisien*).
+- [ ] `POST /create-task`: Menerima config video, memanggil Kie.ai API, return Task ID.
+- [ ] `GET /check-status/{task_id}`: Proxy ke Kie.ai untuk cek status.
+
+### 1.3 CORS & Security
+- [ ] Setup CORS agar bisa diakses dari Frontend.
+- [ ] Amankan API Key (Key dikirim dari Frontend header tiap request).
+
+---
+
+## Phase 2: Frontend Development (Next.js)
+Membangun antarmuka web yang modern.
+
+### 2.1 UI Framework Setup
+- [ ] Init Next.js App.
+- [ ] Install Tailwind CSS & Lucide Icons.
+- [ ] Setup Component Library (Shadcn UI) untuk Button, Card, Input, Slider.
+
+### 2.2 Page Structure
+- [ ] **Sidebar/Header:** Input API Key (Kie & Cloudinary).
+- [ ] **Main Form:**
+    - Image Uploader (Drag & Drop zone).
+    - Text Inputs (Nama Produk, Highlight).
+    - Selectors (Style & Persona dengan Card visual/icon).
+- [ ] **Settings Panel:** Aspect Ratio, Duration.
+- [ ] **Action Bar:** Tombol generate & Batch slider.
+
+### 2.3 Logic Implementation
+- [ ] **State Management:** Menggunakan React Context atau Zustand untuk menyimpan form data.
+- [ ] **API Integration:** Menghubungkan form ke Backend API.
+- [ ] **Polling Mechanism:** Membuat hooks `usePolling` untuk cek status video otomatis.
+
+### 2.4 Gallery & Download
+- [ ] Menampilkan grid video yang sedang diproses.
+- [ ] Menampilkan video player untuk hasil jadi.
+- [ ] Tombol Download (Blob download).
+
+---
+
+## Phase 3: Deployment Strategy
+
+### 3.1 Opsi Self-Hosted (Lokal)
+- User menjalankan backend & frontend di PC sendiri (mirip seperti sekarang tapi buka di browser).
+- Menggunakan Docker Compose (1 container Backend, 1 container Frontend).
+
+### 3.2 Opsi Cloud (Public Web)
+- **Frontend:** Vercel (Gratis untuk hobby).
+- **Backend:** Railway / Render / VPS.
+- **Catatan:** User tetap harus memasukkan API Key mereka sendiri (BYOK - Bring Your Own Key).
+
+---
+
+## Checklist Migrasi
+
+- [ ] Extract logic `core/*.py` agar independen dari `main.py` (Flet).
+- [ ] Test endpoint API dengan Postman/Curl.
+- [ ] Desain Mockup UI Web.
+- [ ] Implementasi Frontend.
+- [ ] Integrasi Upload Image.
+- [ ] Integrasi Video Generation.

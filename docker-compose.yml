@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: web_aff_gen_backend
+    restart: always
+    environment:
+      - PORT=8000
+    volumes:
+      - ./backend_data:/app/data
+
+  frontend:
+    build: ./frontend
+    container_name: web_aff_gen_frontend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      # Important: In client-side code, this must be the public URL.
+      # Since we are using Caddy proxy on same domain, relative path '/api' is best
+      # to avoid CORS issues and hardcoding domains.
+      - NEXT_PUBLIC_API_URL=/api
+
+  caddy:
+    image: caddy:alpine
+    container_name: web_aff_gen_caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  caddy_data:
+  caddy_config:
+  backend_data:
