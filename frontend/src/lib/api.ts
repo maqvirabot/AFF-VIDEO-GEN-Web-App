@@ -10,7 +10,7 @@ interface AuthUser {
     email: string
     name: string
     avatar_url: string | null
-    role: string
+    role: 'admin' | 'user'
     is_approved: boolean
 }
 
