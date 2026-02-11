@@ -17,7 +17,6 @@ affgen.biz.id {
         # BUT based on backend/main.py, it seems standard FastAPI.
         # Often FastAPI mounts on root. If frontend calls /api/upload, 
         # and backend has /upload, we need to rewrite.
-        uri strip_prefix /api
         reverse_proxy backend:8000
     }
 

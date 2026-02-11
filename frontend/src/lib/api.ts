@@ -3,7 +3,7 @@
  * Now uses JWT authentication — no more manual API key headers
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 interface AuthUser {
     id: number

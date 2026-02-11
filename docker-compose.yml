@@ -14,7 +14,7 @@ services:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_API_URL: ""
         NEXT_PUBLIC_GOOGLE_CLIENT_ID: 614764542245-opr0cklugg1kj6ngojjv6ghfqjhc3kdr.apps.googleusercontent.com
     container_name: web_aff_gen_frontend
     restart: always
@@ -23,7 +23,7 @@ services:
       # Important: In client-side code, this must be the public URL.
       # Since we are using Caddy proxy on same domain, relative path '/api' is best
       # to avoid CORS issues and hardcoding domains.
-      - NEXT_PUBLIC_API_URL=/api
+      - NEXT_PUBLIC_API_URL=
 
   caddy:
     image: caddy:alpine
