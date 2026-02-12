@@ -151,6 +151,24 @@ class ApiClient {
         return response.json()
     }
 
+    async deleteUser(userId: number): Promise<{ success: boolean }> {
+        const response = await fetch(`${this.baseUrl}/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: this.authHeaders(),
+            credentials: 'include',
+        })
+        return response.json()
+    }
+
+    async deleteUser(userId: number): Promise<{ success: boolean }> {
+        const response = await fetch(`${this.baseUrl}/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: this.authHeaders(),
+            credentials: 'include',
+        })
+        return response.json()
+    }
+
     // ── Upload ────────────────────────
 
     async uploadImage(

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Settings, CreditCard, Save, Check, AlertCircle, LogOut, Shield, Key } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useAppStore } from '@/lib/store'
@@ -82,15 +83,13 @@ export function Header() {
         <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-900/80 border-b border-slate-700/50">
             <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
                 {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">A</span>
-                    </div>
+                <Link href="/dashboard" className="flex items-center gap-3">
+                    <img src="/logo.png" alt="Aff Video Gen Logo" className="w-10 h-10 rounded-xl" />
                     <div className="hidden sm:block">
                         <h1 className="text-lg font-bold text-white">Aff Video Gen</h1>
                         <p className="text-xs text-slate-400">Generator Video AI Affiliate</p>
                     </div>
-                </div>
+                </Link>
 
                 {/* Right side */}
                 <div className="flex items-center gap-3">

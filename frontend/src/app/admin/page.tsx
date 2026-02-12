@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, X, Shield, Users } from 'lucide-react'
+import { ArrowLeft, Check, X, Shield, Users, Trash2 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { api } from '@/lib/api'
 
@@ -73,6 +73,22 @@ export default function AdminPage() {
         }
     }
 
+    const handleDelete = async (userId: number, userName: string) => {
+        if (!window.confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+            return
+        }
+
+        setActionLoading(userId)
+        try {
+            await api.deleteUser(userId)
+            setUsers(users.filter(u => u.id !== userId))
+        } catch {
+            alert('Failed to delete user')
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
     if (isLoading || !isAdmin) {
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -138,6 +154,14 @@ export default function AdminPage() {
                                         >
                                             <X size={14} /> Reject
                                         </button>
+                                        <button
+                                            onClick={() => handleDelete(user.id, user.name)}
+                                            disabled={actionLoading === user.id}
+                                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors text-sm disabled:opacity-50"
+                                            title="Delete User"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -185,6 +209,16 @@ export default function AdminPage() {
                                             <span className="text-xs px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
                                                 Pending
                                             </span>
+                                        )}
+                                        {user.role !== 'admin' && (
+                                            <button
+                                                onClick={() => handleDelete(user.id, user.name)}
+                                                disabled={actionLoading === user.id}
+                                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                                                title="Delete User"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
                                         )}
                                         {user.role !== 'admin' && user.is_approved && (
                                             <button

@@ -10,7 +10,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            router.replace('/')
+            router.replace('/dashboard')
         }
     }, [isAuthenticated, isLoading, router])
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
     const handleGoogleResponse = async (response: { credential: string }) => {
         const result = await login(response.credential)
         if (result.success) {
-            router.replace('/')
+            router.replace('/dashboard')
         } else {
             alert(result.error || 'Login failed')
         }
@@ -74,9 +74,7 @@ export default function LoginPage() {
             <div className="max-w-md w-full">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-white font-bold text-3xl">A</span>
-                    </div>
+                    <img src="/logo.png" alt="Aff Video Gen Logo" className="w-16 h-16 rounded-2xl mx-auto mb-4" />
                     <h1 className="text-3xl font-bold text-white mb-2">Aff Video Gen</h1>
                     <p className="text-slate-400">AI Video Generator for Affiliate Marketing</p>
                 </div>
@@ -99,7 +97,7 @@ export default function LoginPage() {
 
                 {/* Footer */}
                 <p className="text-xs text-slate-600 text-center mt-6">
-                    Powered by Kie.ai Sora 2
+                    © 2024 Aff Video Gen. Crafted by <a href="" target="_blank" rel="noopener noreferrer"></a>MaqviraID.
                 </p>
             </div>
         </div>

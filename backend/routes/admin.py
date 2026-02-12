@@ -93,3 +93,28 @@ async def reject_user(
     await db.commit()
 
     return {"success": True, "message": f"User {user.email} rejected"}
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """Delete a user permanently (admin only)"""
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own admin account")
+
+    if user.role == "admin":
+        raise HTTPException(status_code=400, detail="Cannot delete other admin users")
+
+    await db.delete(user)
+    await db.commit()
+
+    return {"success": True, "message": f"User {user.email} deleted permanently"}
